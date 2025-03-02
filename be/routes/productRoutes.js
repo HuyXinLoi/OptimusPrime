@@ -200,4 +200,32 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
     }
 });
 
+
+router.get("/", async (req, res) => {
+    try {
+        const { type, value } = req.query;
+        let filter = {};
+
+        if (type && value) {
+            const category = await Category.findOne({ type, name: value });
+            if (category) {
+                filter.category = category._id;
+            } else {
+                return res.json([]);
+            }
+        }
+
+        const products = await Product.find(filter).populate("category");
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+
+
+
 module.exports = router;
+
