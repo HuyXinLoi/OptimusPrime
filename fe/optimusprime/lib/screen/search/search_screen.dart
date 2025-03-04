@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // Add back
+import 'package:go_router/go_router.dart';
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SearchScreenState createState() => _SearchScreenState();
 }
 
@@ -18,7 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            GoRouter.of(context).go('/products');  //Changed code from Navigator.pop(context)
+            GoRouter.of(context).go('/products');
           },
         ),
         title: Container(
@@ -52,7 +55,6 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Stack(
         children: [
-          // Main Content (Blank screen or Search results)
           Container(
             color: Colors.white,
             child: Center(
@@ -62,14 +64,11 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-
-          // Filter Panel
           AnimatedPositioned(
             duration: Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             top: 0,
-            right:
-                _showFilter ? 0 : -MediaQuery.of(context).size.width * 0.75,
+            right: _showFilter ? 0 : -MediaQuery.of(context).size.width * 0.75,
             width: MediaQuery.of(context).size.width * 0.75,
             height: MediaQuery.of(context).size.height,
             child: Container(
@@ -144,8 +143,7 @@ class ColorOption extends StatelessWidget {
   final Color color;
   final String label;
 
-  const ColorOption({Key? key, required this.color, required this.label})
-      : super(key: key);
+  const ColorOption({super.key, required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {

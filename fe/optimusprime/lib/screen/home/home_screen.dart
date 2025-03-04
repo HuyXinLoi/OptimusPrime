@@ -1,6 +1,60 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _bestSellingScrollController = ScrollController();
+  final ScrollController _newProductScrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScrolling(_bestSellingScrollController);
+    _startAutoScrolling(_newProductScrollController);
+  }
+
+  void _startAutoScrolling(ScrollController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      void scroll() {
+        if (!controller.hasClients) return;
+        if (controller.position.maxScrollExtent <= 0) return;
+        controller
+            .animateTo(
+          controller.position.maxScrollExtent,
+          duration: Duration(
+              seconds: (controller.position.maxScrollExtent / 50).toInt()),
+          curve: Curves.linear,
+        )
+            .then((_) {
+          if (!controller.hasClients) return;
+          controller
+              .animateTo(
+            controller.position.minScrollExtent,
+            duration: Duration(
+                seconds: (controller.position.maxScrollExtent / 50).toInt()),
+            curve: Curves.linear,
+          )
+              .then((_) {
+            scroll(); 
+          });
+        });
+      }
+      scroll(); 
+    });
+  }
+
+  @override
+  void dispose() {
+    _bestSellingScrollController.dispose();
+    _newProductScrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,7 +62,6 @@ class HomeScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Thanh tìm kiếm
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
@@ -35,10 +88,10 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               // Bán chạy nhất
               SectionHeader(title: 'Bán chạy nhất'),
               SingleChildScrollView(
+                controller: _bestSellingScrollController,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -66,12 +119,11 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               SizedBox(height: 20),
-
               // Sản phẩm mới
               SectionHeader(title: 'Sản phẩm mới'),
               SingleChildScrollView(
+                controller: _newProductScrollController,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -99,7 +151,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               // Danh mục và thương hiệu
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -161,9 +212,9 @@ class SectionHeader extends StatelessWidget {
   final String title;
 
   const SectionHeader({
-    Key? key,
+    super.key,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,11 +235,11 @@ class ProductCard extends StatelessWidget {
   final String price;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.name,
     required this.price,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -266,10 +317,10 @@ class CategoryBrandItem extends StatelessWidget {
   final IconData? icon;
 
   const CategoryBrandItem({
-    Key? key,
+    super.key,
     required this.label,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
