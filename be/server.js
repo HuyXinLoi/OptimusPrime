@@ -4,6 +4,8 @@ const cors = require("cors");
 // const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const productRoutes = require("./routes/productRoutes");
 const passport = require("./config/passport");
 
 const app = express();
@@ -24,6 +26,8 @@ app.get("/", (req, res) => {
 
 //API routes
 app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
