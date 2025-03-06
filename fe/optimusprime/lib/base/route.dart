@@ -1,14 +1,14 @@
-
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:optimusprime/screen/home/home_screen.dart';
+import 'package:optimusprime/screen/login/login_screen.dart';
 import 'package:optimusprime/screen/navigationbar/bottom_navigationbar_screen.dart';
 import 'package:optimusprime/screen/product_detail/product_detail_screen.dart';
 import 'package:optimusprime/screen/products/products_screen.dart';
 import 'package:optimusprime/screen/profile/profile_screen.dart';
 import 'package:optimusprime/screen/search/search_screen.dart';
 import 'package:optimusprime/screen/shopping_cart/shopping_cart_screen.dart';
-
+import 'package:optimusprime/screen/sign_in/sign_in_screen.dart';
 
 class AppRouter {
   final router = GoRouter(
@@ -16,7 +16,8 @@ class AppRouter {
     routes: [
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {
-          return BottomNavBar(child: child); // Important: Wrap everything with BottomNavBar
+          return BottomNavBar(
+              child: child); // Important: Wrap everything with BottomNavBar
         },
         routes: [
           GoRoute(
@@ -42,6 +43,14 @@ class AppRouter {
           GoRoute(
             path: '/search',
             builder: (context, state) => SearchScreen(),
+          ),
+          GoRoute(
+            path: '/login',
+            builder: (context, state) => LoginScreen(),
+          ),
+          GoRoute(
+            path: '/signin',
+            builder: (context, state) => SignInScreen(),
           ),
         ],
       ),
