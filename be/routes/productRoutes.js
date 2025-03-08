@@ -3,6 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../model/Product");
+const Category = require("../model/Category");
 const { protect } = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 const multer = require("multer");
@@ -37,7 +38,7 @@ router.get("/", async (req, res) => {
 
         const totalProducts = await Product.countDocuments(searchQuery);
         const products = await Product.find(searchQuery)
-            .populate("category")
+            .populate("categories")
             .skip(skip)
             .limit(limitNum)
             .sort({ createdAt: -1 });
@@ -71,7 +72,7 @@ router.get("/", async (req, res) => {
 // @access  Public
 router.get("/:id", async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate("category");
+        const product = await Product.findById(req.params.id).populate("categories");
         if (!product) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
         res.status(200).json(product);
     } catch (error) {
@@ -84,21 +85,23 @@ router.get("/:id", async (req, res) => {
 // @access  Private - chỉ admin
 router.post("/add", protect, admin, upload.single("image"), async (req, res) => {
     try {
-        const { name, price, description, quantity, category, discount } = req.body;
-        // Chỉ kiểm tra các trường text từ req.body, không kiểm tra image
-        if (!name || !price || !description || !quantity || !category || !discount) {
+        const { name, price, description, quantity, categories, discount } = req.body;
+
+        // Kiểm tra các trường bắt buộc
+        if (!name || !price || !description || !quantity || !categories) {
             return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin" });
         }
 
-        // Kiểm tra xem có file hình ảnh được upload không
+        // Kiểm tra file hình ảnh
         if (!req.file) {
             return res.status(400).json({ message: "Vui lòng upload hình ảnh sản phẩm" });
         }
 
-        // Kiểm tra sản phẩm có tồn tại trong database không
-        const product = await Product.findOne({ name });
-        if (product) return res.status(400).json({ message: "Sản phẩm đã tồn tại" });
+        // Kiểm tra sản phẩm có tồn tại không
+        const productExists = await Product.findOne({ name });
+        if (productExists) return res.status(400).json({ message: "Sản phẩm đã tồn tại" });
 
+        // Upload hình ảnh lên Cloudinary
         let imageUrl;
         try {
             const uploadResult = await new Promise((resolve, reject) => {
@@ -114,17 +117,30 @@ router.post("/add", protect, admin, upload.single("image"), async (req, res) => 
             return res.status(500).json({ message: "Lỗi khi tải lên hình ảnh" });
         }
 
+        const categoryArray = Array.isArray(categories) ? categories : [categories];
+        const hasDuplicates = categoryArray.length !== new Set(categoryArray).size;
+        if (hasDuplicates) {
+            return res.status(400).json({ message: "Danh mục không được chứa giá trị trùng lặp" });
+        }
+
+        // (Tùy chọn) Kiểm tra các categories có tồn tại trong DB không
+        const categoryExists = await Category.find({ _id: { $in: categoryArray } });
+        if (categoryExists.length !== categoryArray.length) {
+            return res.status(400).json({ message: "Một hoặc nhiều danh mục không tồn tại" });
+        }
+        // Tạo sản phẩm mới với mảng categories đã loại bỏ trùng lặp
         const newProduct = new Product({
             name,
             price,
             description,
             quantity,
             image: imageUrl,
-            category,
+            categories: categoryArray,
             discount: discount || 0,
         });
         await newProduct.save();
-        const populatedProduct = await Product.findById(newProduct._id).populate("category");
+
+        const populatedProduct = await Product.findById(newProduct._id).populate("categories");
         res.status(201).json({
             product: populatedProduct,
             message: "Thêm sản phẩm thành công",
@@ -142,7 +158,7 @@ router.put("/update/:id", protect, admin, upload.single("image"), async (req, re
     try {
         const updateData = req.body;
         // Tìm sản phẩm theo id
-        const product = await Product.findById(req.params.id).populate("category");
+        const product = await Product.findById(req.params.id).populate("categories");
         if (!product) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
 
         // Cập nhật các trường khác nếu chúng có trong request body
@@ -200,7 +216,6 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
     }
 });
 
-
 router.get("/", async (req, res) => {
     try {
         const { type, value } = req.query;
@@ -215,17 +230,11 @@ router.get("/", async (req, res) => {
             }
         }
 
-        const products = await Product.find(filter).populate("category");
+        const products = await Product.find(filter).populate("categories");
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-
-
-
-
-
 module.exports = router;
-
