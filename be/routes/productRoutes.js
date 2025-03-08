@@ -9,16 +9,60 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const cloudinary = require("../config/cloudinaryConfig");
-// @route   GET /api/products
-// @desc    Lấy tất cả products
-// @access  Public
+
+// router.get("/", async (req, res) => {
+//     try {
+//         const products = await Product.find().populate("category");
+//         if (!products) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+//         res.status(200).json(products);
+//     } catch (error) {
+//         res.status(500).json({ message: "Lỗi server" });
+//     }
+// });
+// @route GET /api/products
+// @desc Lấy tất cả products
+// @desc Tìm kiếm sản phẩm theo tên sản phẩm có phân trang
+// @desc Phân trang sản phẩm
+// @access Public
 router.get("/", async (req, res) => {
     try {
-        const products = await Product.find().populate("category");
-        if (!products) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-        res.status(200).json(products);
+        const { q = "", page = 1, limit = 10 } = req.query;
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        const searchQuery = {
+            name: { $regex: q, $options: "i" },
+        };
+
+        const totalProducts = await Product.countDocuments(searchQuery);
+        const products = await Product.find(searchQuery)
+            .populate("category")
+            .skip(skip)
+            .limit(limitNum)
+            .sort({ createdAt: -1 });
+
+        const totalPages = Math.ceil(totalProducts / limitNum);
+
+        res.status(200).json({
+            success: true,
+            data: products,
+            pagination: {
+                currentPage: pageNum,
+                totalPages: totalPages,
+                totalItems: totalProducts,
+                limit: limitNum,
+                hasNext: pageNum < totalPages,
+                hasPrevious: pageNum > 1,
+            },
+        });
     } catch (error) {
-        res.status(500).json({ message: "Lỗi server" });
+        console.error("Search error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi server",
+            error: error.message,
+        });
     }
 });
 
@@ -155,4 +199,33 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
         res.status(500).json({ message: "Lỗi server" });
     }
 });
+
+
+router.get("/", async (req, res) => {
+    try {
+        const { type, value } = req.query;
+        let filter = {};
+
+        if (type && value) {
+            const category = await Category.findOne({ type, name: value });
+            if (category) {
+                filter.category = category._id;
+            } else {
+                return res.json([]);
+            }
+        }
+
+        const products = await Product.find(filter).populate("category");
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+
+
+
+
 module.exports = router;
+
