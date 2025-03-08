@@ -165,7 +165,7 @@ router.put("/update/:id", protect, admin, upload.single("image"), async (req, re
         if (updateData.name !== undefined) product.name = updateData.name;
         if (updateData.price !== undefined) product.price = updateData.price;
         if (updateData.description !== undefined) product.description = updateData.description;
-        if (updateData.category !== undefined) product.category = updateData.category;
+        // if (updateData.category !== undefined) product.category = updateData.category;
         if (updateData.discount !== undefined) product.discount = updateData.discount;
         if (updateData.quantity !== undefined) product.quantity = updateData.quantity;
 
@@ -191,6 +191,48 @@ router.put("/update/:id", protect, admin, upload.single("image"), async (req, re
             }
         }
 
+        // Cập nhật danh mục
+        // Xử lý cập nhật categories nếu có trong request body
+        if (updateData.categories) {
+            // Chuyển categories thành mảng (nếu không phải là mảng)
+            const newCategories = Array.isArray(updateData.categories)
+                ? updateData.categories
+                : [updateData.categories];
+
+            // Kiểm tra xem các categories có tồn tại trong DB không
+            const categoryDocs = await Category.find({ _id: { $in: newCategories } });
+            if (categoryDocs.length !== newCategories.length) {
+                return res.status(400).json({ message: "Một hoặc nhiều danh mục không tồn tại" });
+            }
+
+            // Kiểm tra trùng lặp type trong newCategories
+            const typeSet = new Set(categoryDocs.map((cat) => cat.type));
+            if (typeSet.size !== categoryDocs.length) {
+                return res.status(400).json({ message: "Danh mục không được chứa các type trùng lặp" });
+            }
+
+            // Lấy danh sách type của categories hiện tại trong product
+            const currentCategoryTypes = product.categories.map((cat) => cat.type);
+
+            // Tạo mảng categories mới
+            let updatedCategories = [...product.categories]; // Sao chép categories hiện tại
+
+            for (const newCategory of categoryDocs) {
+                const newCategoryType = newCategory.type;
+                const existingCategoryIndex = updatedCategories.findIndex((cat) => cat.type === newCategoryType);
+
+                if (existingCategoryIndex !== -1) {
+                    // Nếu type đã tồn tại, ghi đè category có type đó
+                    updatedCategories[existingCategoryIndex] = newCategory._id;
+                } else {
+                    // Nếu type chưa tồn tại, thêm category mới vào mảng
+                    updatedCategories.push(newCategory._id);
+                }
+            }
+
+            // Cập nhật mảng categories của product
+            product.categories = updatedCategories;
+        }
         // Lưu sản phẩm đã cập nhật
         await product.save();
 
