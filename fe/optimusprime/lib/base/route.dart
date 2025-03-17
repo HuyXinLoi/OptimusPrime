@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:optimusprime/screen/home/home_screen.dart';
 import 'package:optimusprime/screen/navigationbar/bottom_navigationbar_screen.dart';
 import 'package:optimusprime/screen/product_detail/product_detail_screen.dart';
+import 'package:optimusprime/screen/products/product_model.dart';
+
 import 'package:optimusprime/screen/products/products_screen.dart';
 import 'package:optimusprime/screen/profile/profile_screen.dart';
 import 'package:optimusprime/screen/search/search_screen.dart';

@@ -31,7 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Tìm kiếm xe...',
+              hintText: 'Tìm kiếm ...',
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25.0),
@@ -59,7 +59,7 @@ class _SearchScreenState extends State<SearchScreen> {
             color: Colors.white,
             child: Center(
               child: Text(
-                "Tìm kiếm...",
+                "Tìm kiếm   ...",
                 style: TextStyle(fontSize: 20, color: Colors.grey),
               ),
             ),
@@ -81,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(height: 16),
-                  Text('Giá xe',
+                  Text('Giá',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Row(
@@ -96,12 +96,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   SizedBox(height: 16),
-                  Text('Hãng',
+                  Text('Hãng:',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   DropdownButtonFormField(items: [], onChanged: (value) {}),
                   SizedBox(height: 16),
-                  Text('Loại xe',
+                  Text('Loại:',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Row(
@@ -113,20 +113,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       Expanded(
                           child: ElevatedButton(
                               onPressed: () {}, child: Text('Loại 2'))),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Text('Màu sắc',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Wrap(
-                    children: [
-                      ColorOption(color: Colors.black, label: 'Đen'),
-                      ColorOption(color: Colors.white, label: 'Trắng'),
-                      ColorOption(color: Colors.yellow, label: 'Vàng'),
-                      ColorOption(color: Colors.pink, label: 'Hồng'),
-                      ColorOption(color: Colors.blue, label: 'Xanh dương'),
-                      ColorOption(color: Colors.green, label: 'Xanh lá'),
                     ],
                   ),
                 ],
