@@ -1,5 +1,3 @@
-//Model for Product
-
 const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema(
@@ -24,11 +22,13 @@ const ProductSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        category: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Category",
-            required: true,
-        },
+        categories: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Category",
+                required: true,
+            },
+        ],
         discount: {
             type: Number,
             default: 0,

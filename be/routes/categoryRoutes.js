@@ -1,5 +1,7 @@
 const express = require("express");
 const Category = require("../model/Category");
+const admin = require("../middleware/adminMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -34,7 +36,7 @@ router.get("/:id", async (req, res) => {
 // @route   POST /api/categories
 // @desc    Thêm mới category
 // @access  Public
-router.post("/add-category", async (req, res) => {
+router.post("/add-category", protect, admin, async (req, res) => {
   try {
     const { name, type, description } = req.body;
 
@@ -56,7 +58,7 @@ router.post("/add-category", async (req, res) => {
 // @route   PUT /api/categories/update/:id
 // @desc    Cập nhật category
 // @access  Public
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id",protect, admin, async (req, res) => {
   try {
     const { name, type, description } = req.body;
 
@@ -78,7 +80,7 @@ router.put("/update/:id", async (req, res) => {
 // @route   DELETE /api/categories/delete/:id
 // @desc    Xóa category
 // @access  Public
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id",protect, admin, async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) return res.status(404).json({ message: "Không tìm thấy category" });
