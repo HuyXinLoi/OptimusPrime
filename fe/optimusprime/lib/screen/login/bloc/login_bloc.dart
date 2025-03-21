@@ -20,35 +20,84 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginSubmitted>((event, emit) async {
       emit(state.copyWith(isLoading: true, errorMessage: null));
 
-      try {
-        final response = await http.post(
-          Uri.parse('http://10.0.2.2:9000/api/users/login'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'email': state.email,
-            'password': state.password,
-          }),
-        );
-
-        final responseData = jsonDecode(response.body);
-
-        if (response.statusCode == 200) {
-          emit(state.copyWith(isLoading: false));
-
-          // Điều hướng về màn hình home
-          router.go('/');
-        } else {
-          emit(state.copyWith(
-            isLoading: false,
-            errorMessage: responseData['message'] ?? 'Login failed',
-          ));
-        }
-      } catch (e) {
+      if (state.email.isEmpty || state.password.isEmpty) {
         emit(state.copyWith(
           isLoading: false,
-          errorMessage: 'Something went wrong. Please try again.',
+          errorMessage: 'Sai tài khoản hoặc mật khẩu',
+        ));
+        return;
+      }
+
+      if (state.email.isEmpty) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Sai tài khoản hoặc mật khẩu',
+        ));
+        return;
+      }
+
+      if (state.password.isEmpty) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Sai tài khoản hoặc mật khẩu',
+        ));
+        return;
+      }
+
+      if (!isValidEmail(state.email)) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Sai tài khoản hoặc mật khẩu',
+        ));
+        return;
+      }
+
+      if (state.email == 'test@abc.com' && state.password == '123456') {
+        emit(state.copyWith(
+          isLoading: false,
+        ));
+        router.go('/');
+      } else {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Sai tài khoản hoặc mật khẩu',
         ));
       }
+
+      // try {
+      //   final response = await http.post(
+      //     Uri.parse('http://10.0.2.2:9000/api/users/login'),
+      //     headers: {'Content-Type': 'application/json'},
+      //     body: jsonEncode({
+      //       'email': state.email,
+      //       'password': state.password,
+      //     }),
+      //   );
+
+      //   final responseData = jsonDecode(response.body);
+
+      //   if (response.statusCode == 200) {
+      //     emit(state.copyWith(isLoading: false));
+
+      //     // Điều hướng về màn hình home
+      //     router.go('/');
+      //   } else {
+      //     emit(state.copyWith(
+      //       isLoading: false,
+      //       errorMessage: responseData['message'] ?? 'Login failed',
+      //     ));
+      //   }
+      // } catch (e) {
+      //   emit(state.copyWith(
+      //     isLoading: false,
+      //     errorMessage: 'Something went wrong. Please try again.',
+      //   ));
+      // }
     });
+  }
+  bool isValidEmail(String email) {
+    final RegExp emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    return emailRegex.hasMatch(email);
   }
 }
