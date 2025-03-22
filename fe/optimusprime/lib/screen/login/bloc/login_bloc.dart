@@ -51,48 +51,35 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         ));
         return;
       }
+      try {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:9000/api/users/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': state.email,
+            'password': state.password,
+          }),
+        );
 
-      if (state.email == 'test@abc.com' && state.password == '123456') {
+        final responseData = jsonDecode(response.body);
+
+        if (response.statusCode == 200) {
+          emit(state.copyWith(isLoading: false));
+
+          // Điều hướng về màn hình home
+          router.go('/');
+        } else {
+          emit(state.copyWith(
+            isLoading: false,
+            errorMessage: responseData['message'] ?? 'Login failed',
+          ));
+        }
+      } catch (e) {
         emit(state.copyWith(
           isLoading: false,
-        ));
-        router.go('/');
-      } else {
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: 'Sai tài khoản hoặc mật khẩu',
+          errorMessage: 'Something went wrong. Please try again.',
         ));
       }
-
-      // try {
-      //   final response = await http.post(
-      //     Uri.parse('http://10.0.2.2:9000/api/users/login'),
-      //     headers: {'Content-Type': 'application/json'},
-      //     body: jsonEncode({
-      //       'email': state.email,
-      //       'password': state.password,
-      //     }),
-      //   );
-
-      //   final responseData = jsonDecode(response.body);
-
-      //   if (response.statusCode == 200) {
-      //     emit(state.copyWith(isLoading: false));
-
-      //     // Điều hướng về màn hình home
-      //     router.go('/');
-      //   } else {
-      //     emit(state.copyWith(
-      //       isLoading: false,
-      //       errorMessage: responseData['message'] ?? 'Login failed',
-      //     ));
-      //   }
-      // } catch (e) {
-      //   emit(state.copyWith(
-      //     isLoading: false,
-      //     errorMessage: 'Something went wrong. Please try again.',
-      //   ));
-      // }
     });
   }
   bool isValidEmail(String email) {

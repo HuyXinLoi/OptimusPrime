@@ -29,9 +29,13 @@ class AppRouter {
             builder: (context, state) => ProfileScreen(),
           ),
           GoRoute(
-            path: '/product_detail',
-            builder: (context, state) => ProductdetailScreen(),
-          ),
+              path: '/product_detail/:id',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return ProductDetailScreen(
+                  productId: id,
+                );
+              }),
           GoRoute(
             path: '/products',
             builder: (context, state) => ProductsScreen(),
