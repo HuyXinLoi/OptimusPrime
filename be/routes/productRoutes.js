@@ -65,15 +65,18 @@ router.get("/", async (req, res) => {
 router.get("/filter", async (req, res) => {
     try {
         const { value, sort } = req.query;
-        if (!value) {
-            return res.status(400).json({ message: "Category name is required" });
-        }
 
-        // Tìm category theo name
-        const category = await Category.findOne({ name: value });
+        let query = {};
+        
+        if (value) {
+            // Tìm category theo name
+            const category = await Category.findOne({ name: value });
 
-        if (!category) {
-            return res.status(404).json({ message: "No matching category found" });
+            if (!category) {
+                return res.status(404).json({ message: "No matching category found" });
+            }
+
+            query.categories = category._id;
         }
 
         // Xây dựng điều kiện sắp xếp nếu có sort
@@ -81,14 +84,14 @@ router.get("/filter", async (req, res) => {
         if (sort === "asc") sortOrder.price = 1;
         if (sort === "desc") sortOrder.price = -1;
 
-        // Tìm sản phẩm có chứa categoryId
-        const query = Product.find({ categories: category._id }).populate("categories");
+        // Tìm sản phẩm theo query, có thể chỉ sắp xếp nếu không có category
+        const productQuery = Product.find(query);
         
         if (sort) {
-            query.sort(sortOrder);
+            productQuery.sort(sortOrder);
         }
 
-        const products = await query;
+        const products = await productQuery;
 
         res.json(products);
     } catch (error) {
