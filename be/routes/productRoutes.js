@@ -65,15 +65,12 @@ router.get("/", async (req, res) => {
 router.get("/filter", async (req, res) => {
     try {
         const { value, sort } = req.query;
-        console.log("Received query value:", value, "Sort order:", sort);
-
         if (!value) {
             return res.status(400).json({ message: "Category name is required" });
         }
 
         // Tìm category theo name
         const category = await Category.findOne({ name: value });
-        console.log("Found category:", category);
 
         if (!category) {
             return res.status(404).json({ message: "No matching category found" });
@@ -92,7 +89,6 @@ router.get("/filter", async (req, res) => {
         }
 
         const products = await query;
-        console.log("Found products:", products);
 
         res.json(products);
     } catch (error) {
