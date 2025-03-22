@@ -11,15 +11,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const cloudinary = require("../config/cloudinaryConfig");
 
-// router.get("/", async (req, res) => {
-//     try {
-//         const products = await Product.find().populate("category");
-//         if (!products) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-//         res.status(200).json(products);
-//     } catch (error) {
-//         res.status(500).json({ message: "Lỗi server" });
-//     }
-// });
+
+
 // @route GET /api/products
 // @desc Lấy tất cả products
 // @desc Tìm kiếm sản phẩm theo tên sản phẩm có phân trang
@@ -66,6 +59,48 @@ router.get("/", async (req, res) => {
         });
     }
 });
+
+
+// API lọc sản phẩm dựa trên name của Category, có thể sắp xếp theo price
+router.get("/filter", async (req, res) => {
+    try {
+        const { value, sort } = req.query;
+        console.log("Received query value:", value, "Sort order:", sort);
+
+        if (!value) {
+            return res.status(400).json({ message: "Category name is required" });
+        }
+
+        // Tìm category theo name
+        const category = await Category.findOne({ name: value });
+        console.log("Found category:", category);
+
+        if (!category) {
+            return res.status(404).json({ message: "No matching category found" });
+        }
+
+        // Xây dựng điều kiện sắp xếp nếu có sort
+        let sortOrder = {};
+        if (sort === "asc") sortOrder.price = 1;
+        if (sort === "desc") sortOrder.price = -1;
+
+        // Tìm sản phẩm có chứa categoryId
+        const query = Product.find({ categories: category._id }).populate("categories");
+        
+        if (sort) {
+            query.sort(sortOrder);
+        }
+
+        const products = await query;
+        console.log("Found products:", products);
+
+        res.json(products);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+});
+
 
 // @route   GET /api/products/:id
 // @desc    Lấy product theo ID
@@ -245,7 +280,6 @@ router.put("/update/:id", protect, admin, upload.single("image"), async (req, re
         res.status(500).json({ message: "Lỗi server" });
     }
 });
-
 // @route   DELETE /api/products/:id
 // @desc    Xóa sản phẩm
 // @access  Private - chỉ admin
@@ -258,31 +292,5 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
     }
 });
 
-//Filter theo tên category
-router.get("/filter", async (req, res) => {
-    try {
-        const { value } = req.query;
-        console.log("Received query value:", value);
-
-        if (!value) {
-            return res.status(400).json({ message: "Category name is required" });
-        }
-
-        const category = await Category.findOne({ name: value });
-        console.log("Found category:", category);
-
-        if (!category) {
-            return res.status(404).json({ message: "No matching category found" });
-        }
-
-        const products = await Product.find({ categories: category._id }).populate("categories");
-        console.log("Found products:", products);
-
-        res.json(products);
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: "Internal server error", error: error.message });
-    }
- });
 
 module.exports = router;
