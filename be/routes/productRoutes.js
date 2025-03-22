@@ -258,25 +258,31 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+//Filter theo tên category
+router.get("/filter", async (req, res) => {
     try {
-        const { type, value } = req.query;
-        let filter = {};
+        const { value } = req.query;
+        console.log("Received query value:", value);
 
-        if (type && value) {
-            const category = await Category.findOne({ type, name: value });
-            if (category) {
-                filter.category = category._id;
-            } else {
-                return res.json([]);
-            }
+        if (!value) {
+            return res.status(400).json({ message: "Category name is required" });
         }
 
-        const products = await Product.find(filter).populate("categories");
+        const category = await Category.findOne({ name: value });
+        console.log("Found category:", category);
+
+        if (!category) {
+            return res.status(404).json({ message: "No matching category found" });
+        }
+
+        const products = await Product.find({ categories: category._id }).populate("categories");
+        console.log("Found products:", products);
+
         res.json(products);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
     }
-});
+ });
 
 module.exports = router;
