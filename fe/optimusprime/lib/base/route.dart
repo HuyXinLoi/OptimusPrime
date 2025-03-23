@@ -38,7 +38,7 @@ class AppRouter {
               }),
           GoRoute(
             path: '/products',
-            builder: (context, state) => ProductsScreen(),
+            builder: (context, state) => ProductListScreen(),
           ),
           GoRoute(
             path: '/shoppingcart',

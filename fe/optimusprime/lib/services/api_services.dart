@@ -6,16 +6,13 @@ import 'package:optimusprime/screen/home/models/product.dart';
 import 'package:optimusprime/screen/product_detail/models/product_detail.dart';
 
 class ApiService {
-  // Thay đổi URL này thành API thực tế của bạn
   static const String baseUrl = 'http://10.0.2.2:9000/api';
 
-  // Thêm header nếu API của bạn yêu cầu (ví dụ: token xác thực)
   Map<String, String> get headers => {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_API_TOKEN', // Thay thế bằng token thực tế
+        'Authorization': 'Bearer YOUR_API_TOKEN',
       };
 
-  // Lấy danh sách sản phẩm bán chạy nhất
   Future<List<Product>> getBestSellers() async {
     try {
       print('Fetching best sellers from API...');
@@ -40,7 +37,6 @@ class ApiService {
     } catch (e) {
       print('Exception when fetching best sellers: $e');
 
-      // Trả về dữ liệu mẫu trong trường hợp lỗi (chỉ cho mục đích demo)
       throw Exception('Failed to load best sellers: ');
     }
   }
@@ -252,6 +248,85 @@ class ApiService {
     } catch (e) {
       print('Exception when searching products: $e');
       return [];
+    }
+  }
+
+  Future<List<Product>> filterProducts({
+    String? category,
+    double minPrice = 0.0,
+    double maxPrice = 10000000.0,
+    String sort = 'asc',
+  }) async {
+    try {
+      print('🔍 Filtering products with API...');
+
+      // Xây dựng query parameters
+      final Map<String, String> queryParams = {
+        'minPrice': minPrice.toInt().toString(),
+        'maxPrice': maxPrice.toInt().toString(),
+        'sort': sort,
+      };
+
+      if (category != null && category.isNotEmpty) {
+        queryParams['value'] = category;
+      }
+
+      final Uri uri = Uri.parse('$baseUrl/products/filter').replace(
+        queryParameters: queryParams,
+      );
+
+      print('🌍 Filter API URL: $uri');
+
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      print('📥 API Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        // ✅ Chuyển từng item trong list thành Product
+        final List<Product> products =
+            responseData.map((json) => Product.fromJson(json)).toList();
+
+        return products;
+      } else {
+        print('❌ Error Response: ${response.body}');
+        throw Exception('Failed to filter products: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('⚠️ Exception when filtering products: $e');
+      throw Exception('Failed to filter products: $e');
+    }
+  }
+
+  Future<List<Product>> getAllProducts() async {
+    try {
+      print('Fetching all products from API...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/products'),
+        headers: headers,
+      );
+
+      print('API Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final productsResponse = ProductsResponse.fromJson(responseData);
+
+        if (productsResponse.success) {
+          return productsResponse.data;
+        } else {
+          throw Exception('API returned success: false');
+        }
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception when fetching all products: $e');
+      throw Exception('Failed to load products:');
     }
   }
 
