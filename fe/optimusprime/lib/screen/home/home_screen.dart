@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:optimusprime/screen/home/bloc/home_bloc.dart';
 import 'package:optimusprime/screen/home/bloc/home_event.dart';
 import 'package:optimusprime/screen/home/bloc/home_state.dart';
+import 'package:optimusprime/screen/search/search_screen.dart';
 import 'package:optimusprime/services/api_services.dart';
 import 'models/category.dart';
 import 'widgets/product_card.dart';
@@ -65,22 +66,30 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Tìm kiếm xe...',
-                                    hintStyle: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                    ),
-                                    prefixIcon: Icon(
-                                      Icons.search_rounded,
-                                      color: Colors.blue[700],
-                                      size: 20,
-                                    ),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    context.push('/search');
+                                  },
+                                  child: AbsorbPointer(
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        hintText: 'Tìm kiếm xe...',
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 14,
+                                        ),
+                                        prefixIcon: Icon(
+                                          Icons.search_rounded,
+                                          color: Colors.blue[700],
+                                          size: 20,
+                                        ),
+                                        border: InputBorder.none,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 15,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),

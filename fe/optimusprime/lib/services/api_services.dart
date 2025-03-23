@@ -227,6 +227,34 @@ class ApiService {
     }
   }
 
+  Future<List<Product>> searchProducts(String query) async {
+    try {
+      print('Searching products with query: $query');
+      final response = await http.get(
+        Uri.parse('$baseUrl/products?q=$query'),
+        headers: headers,
+      );
+
+      print('API Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final productsResponse = ProductsResponse.fromJson(responseData);
+
+        if (productsResponse.success) {
+          return productsResponse.data;
+        } else {
+          throw Exception('API returned success: false');
+        }
+      } else {
+        throw Exception('Failed to search products: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception when searching products: $e');
+      return [];
+    }
+  }
+
 //   // Dữ liệu mẫu cho sản phẩm (sử dụng khi API không hoạt động)
 //   List<Product> _getMockProducts() {
 //     return [
