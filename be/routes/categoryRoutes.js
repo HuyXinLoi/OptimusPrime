@@ -91,5 +91,30 @@ router.delete("/delete/:id",protect, admin, async (req, res) => {
     res.status(500).json({ message: "Lỗi server" });
   }
 });
+// @route   POST /api/categories/filter
+// @desc    Lọc categories theo type (Enum) bằng JSON body
+// @access  Public
+router.post("/filter", async (req, res) => {
+  try {
+    const { type } = req.body;
+
+    // Danh sách giá trị hợp lệ
+    const validTypes = ["loai_xe", "hang", "loai_nhienlieu", "loai_dongco", "mausac"];
+    
+    // Kiểm tra nếu type không hợp lệ
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: "Type không hợp lệ" });
+    }
+
+    // Tìm kiếm category theo type
+    const categories = await Category.find({ type });
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
 
 module.exports = router;

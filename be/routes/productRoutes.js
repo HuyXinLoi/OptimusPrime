@@ -11,15 +11,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const cloudinary = require("../config/cloudinaryConfig");
 
-// router.get("/", async (req, res) => {
-//     try {
-//         const products = await Product.find().populate("category");
-//         if (!products) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-//         res.status(200).json(products);
-//     } catch (error) {
-//         res.status(500).json({ message: "Lỗi server" });
-//     }
-// });
+
+
 // @route GET /api/products
 // @desc Lấy tất cả products
 // @desc Tìm kiếm sản phẩm theo tên sản phẩm có phân trang
@@ -66,6 +59,47 @@ router.get("/", async (req, res) => {
         });
     }
 });
+
+
+// API lọc sản phẩm dựa trên name của Category, có thể sắp xếp theo price
+router.get("/filter", async (req, res) => {
+    try {
+        const { value, sort } = req.query;
+
+        let query = {};
+        
+        if (value) {
+            // Tìm category theo name
+            const category = await Category.findOne({ name: value });
+
+            if (!category) {
+                return res.status(404).json({ message: "No matching category found" });
+            }
+
+            query.categories = category._id;
+        }
+
+        // Xây dựng điều kiện sắp xếp nếu có sort
+        let sortOrder = {};
+        if (sort === "asc") sortOrder.price = 1;
+        if (sort === "desc") sortOrder.price = -1;
+
+        // Tìm sản phẩm theo query, có thể chỉ sắp xếp nếu không có category
+        const productQuery = Product.find(query);
+        
+        if (sort) {
+            productQuery.sort(sortOrder);
+        }
+
+        const products = await productQuery;
+
+        res.json(products);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+});
+
 
 // @route   GET /api/products/:id
 // @desc    Lấy product theo ID
@@ -245,7 +279,6 @@ router.put("/update/:id", protect, admin, upload.single("image"), async (req, re
         res.status(500).json({ message: "Lỗi server" });
     }
 });
-
 // @route   DELETE /api/products/:id
 // @desc    Xóa sản phẩm
 // @access  Private - chỉ admin
@@ -258,25 +291,5 @@ router.delete("/delete/:id", protect, admin, async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
-    try {
-        const { type, value } = req.query;
-        let filter = {};
-
-        if (type && value) {
-            const category = await Category.findOne({ type, name: value });
-            if (category) {
-                filter.category = category._id;
-            } else {
-                return res.json([]);
-            }
-        }
-
-        const products = await Product.find(filter).populate("categories");
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
 
 module.exports = router;
