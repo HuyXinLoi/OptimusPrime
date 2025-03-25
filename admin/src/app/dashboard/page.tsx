@@ -28,10 +28,10 @@ export default function DashboardPage() {
         ])
 
         setStats({
-          products: productsData.data.length,
-          categories: categoriesData.length,
-          users: usersData.length,
-          orders: ordersData.length,
+          products: productsData.data?.length || productsData?.length || 0,
+          categories: categoriesData.data?.length || categoriesData?.length || 0,
+          users: usersData.data?.length || usersData?.length || 0,
+          orders: ordersData.data?.length || ordersData?.length || 0,
         })
       } catch (error) {
         console.error("Error fetching dashboard stats:", error)

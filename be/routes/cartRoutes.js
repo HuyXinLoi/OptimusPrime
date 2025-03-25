@@ -82,4 +82,23 @@ router.post("/checkout",protect, async (req, res) => {
     }
 });
 
+
+// @routes GET api/cart
+// @desc Get all carts
+// @access Private (Admin only)
+router.get("/", protect, async (req, res) => {
+    try {
+        // Kiểm tra quyền Admin
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied. Admins only." });
+        }
+
+        const carts = await Cart.find().populate("user", "name email").populate("items.product", "name price");
+        res.status(200).json(carts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 module.exports = router;

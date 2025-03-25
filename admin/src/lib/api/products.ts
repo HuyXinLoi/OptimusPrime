@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9000/api"
 
 // Get all products with pagination and search
 export const getProducts = async (page = 1, limit = 10, query = "") => {

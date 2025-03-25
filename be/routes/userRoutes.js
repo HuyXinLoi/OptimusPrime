@@ -340,4 +340,24 @@ router.put("/profile", protect, upload.single("avatar"), async (req, res) => {
         res.status(500).send("Error in editing profile");
     }
 });
+
+// @routes GET api/users
+// @desc Get all users
+// @access Private (Admin only)
+router.get("/", protect, async (req, res) => {
+    try {
+        // Kiểm tra quyền Admin
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied. Admins only." });
+        }
+
+        const users = await User.find();
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Error fetching users" });
+    }
+});
+
+
 module.exports = router;

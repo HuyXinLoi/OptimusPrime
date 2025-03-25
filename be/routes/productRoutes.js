@@ -166,6 +166,12 @@ router.post("/add", protect, admin, upload.single("image"), async (req, res) => 
         if (categoryExists.length !== categoryArray.length) {
             return res.status(400).json({ message: "Một hoặc nhiều danh mục không tồn tại" });
         }
+        const typeSet = new Set(categoryExists.map((cat) => cat.type));
+        if (typeSet.size !== categoryExists.length) {
+            return res.status(400).json({
+                message: "Danh mục không được chứa các type trùng lặp",
+            });
+        }
         // Tạo sản phẩm mới với mảng categories đã loại bỏ trùng lặp
         const newProduct = new Product({
             name,

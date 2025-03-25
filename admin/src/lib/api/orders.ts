@@ -8,7 +8,7 @@ export const getOrders = async () => {
     const token = localStorage.getItem("token")
     if (!token) throw new Error("Authentication required")
 
-    const response = await axios.get(`${API_URL}/orders`, {
+    const response = await axios.get(`${API_URL}/cart`, { // change from orders to cart
       headers: {
         Authorization: `Bearer ${token}`,
       },
