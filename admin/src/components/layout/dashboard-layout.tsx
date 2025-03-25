@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { LayoutDashboard, ShoppingBag, Tag, Users, ShoppingCart, LogOut, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+// import { useToast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 
 interface DashboardLayoutProps {
@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { toast } = useToast()
+  // const { toast } = useToast()
 
   useEffect(() => {
     setIsClient(true)
@@ -35,10 +35,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out",
-    })
+    // toast({
+    //   title: "Logged Out",
+    //   description: "You have been successfully logged out",
+    // })
     router.push("/login")
   }
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -8,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+// import { useToast } from "@/components/ui/use-toast"
 import { loginUser } from "@/lib/api/auth"
 
 export default function LoginPage() {
@@ -16,7 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { toast } = useToast()
+  // const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,11 +28,11 @@ export default function LoginPage() {
       const response = await loginUser(email, password)
 
       if (response.user.role !== "admin") {
-        toast({
-          title: "Access Denied",
-          description: "Only admin users can access the dashboard",
-          variant: "destructive",
-        })
+        // toast({
+        //   title: "Access Denied",
+        //   description: "Only admin users can access the dashboard",
+        //   variant: "destructive",
+        // })
         setIsLoading(false)
         return
       }
@@ -39,18 +41,18 @@ export default function LoginPage() {
       localStorage.setItem("token", response.token)
       localStorage.setItem("user", JSON.stringify(response.user))
 
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin dashboard",
-      })
+      // toast({
+      //   title: "Login Successful",
+      //   description: "Welcome to the admin dashboard",
+      // })
 
       router.push("/dashboard")
     } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message || "Invalid credentials",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Login Failed",
+      //   description: error.message || "Invalid credentials",
+      //   variant: "destructive",
+      // })
     } finally {
       setIsLoading(false)
     }
