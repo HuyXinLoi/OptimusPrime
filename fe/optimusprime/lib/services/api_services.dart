@@ -4,8 +4,11 @@ import 'package:optimusprime/screen/home/models/api_response.dart';
 import 'package:optimusprime/screen/home/models/category.dart';
 import 'package:optimusprime/screen/home/models/product.dart';
 import 'package:optimusprime/screen/product_detail/models/product_detail.dart';
+import 'package:optimusprime/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
+  // static const String baseUrl = 'http://52.77.230.94:9000/api';
   static const String baseUrl = 'http://10.0.2.2:9000/api';
 
   Map<String, String> get headers => {
@@ -327,6 +330,164 @@ class ApiService {
     } catch (e) {
       print('Exception when fetching all products: $e');
       throw Exception('Failed to load products:');
+    }
+  }
+
+  // Get the auth token from AuthService
+  Future<String?> _getToken() async {
+    return await AuthService.getToken();
+  }
+
+  // Add headers with auth token
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception('Unauthorized: No token available');
+    }
+
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+  // Get cart
+  Future<Map<String, dynamic>> getCart(userId) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/cart/$userId'),
+        headers: headers,
+      );
+      print(' is null wtff ? $userId');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Please login to view your cart');
+      } else {
+        throw Exception('Failed to load cart hehehe : ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load cart: $e');
+    }
+  }
+
+  // Add to cart
+  Future<void> addToCart(String productId, int quantity) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/cart/add'),
+        headers: headers,
+        body: json.encode({
+          'productId': productId,
+          'quantity': quantity,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Please login to add items to cart');
+      } else {
+        throw Exception('Failed to add to cart: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to add to cart: $e');
+    }
+  }
+
+  // Update cart item quantity
+  Future<void> updateCartItemQuantity(String productId, int quantity) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/cart/update'),
+        headers: headers,
+        body: json.encode({
+          'productId': productId,
+          'quantity': quantity,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Please login to update your cart');
+      } else {
+        throw Exception('Failed to update cart: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to update cart: $e');
+    }
+  }
+
+  // Remove from cart
+  Future<void> removeFromCart(String productId) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/cart/remove'),
+        headers: headers,
+        body: json.encode({
+          'productId': productId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Please login to remove items from cart');
+      } else {
+        throw Exception('Failed to remove from cart: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to remove from cart: $e');
+    }
+  }
+
+  // Clear cart
+  Future<void> clearCart() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/cart/clear'),
+        headers: headers,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to clear cart: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to clear cart: $e');
+    }
+  }
+
+  // Checkout
+  Future<void> checkout(
+      String address, String phone, String paymentMethod) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/cart/checkout'),
+        headers: headers,
+        body: json.encode({
+          'address': address,
+          'phone': phone,
+          'paymentMethod': paymentMethod,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Please login to checkout');
+      } else {
+        throw Exception('Failed to checkout: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to checkout: $e');
     }
   }
 

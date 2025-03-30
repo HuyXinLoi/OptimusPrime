@@ -69,27 +69,27 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (product.discount > 0)
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red[600],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '-${product.discount.toStringAsFixed(0)}%',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                // if (product.discount > 0)
+                //   Positioned(
+                //     top: 10,
+                //     left: 10,
+                //     child: Container(
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: 8, vertical: 4),
+                //       decoration: BoxDecoration(
+                //         color: Colors.red[600],
+                //         borderRadius: BorderRadius.circular(10),
+                //       ),
+                //       child: Text(
+                //         '-${product.discount.toStringAsFixed(0)}%',
+                //         style: const TextStyle(
+                //           color: Colors.white,
+                //           fontSize: 12,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
                 if (product.isNew)
                   Positioned(
                     top: 10,

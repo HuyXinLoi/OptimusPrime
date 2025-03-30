@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
+import 'package:optimusprime/screen/login/models/user_model.dart';
+import 'package:optimusprime/services/auth_service.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
@@ -63,11 +65,23 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
         final responseData = jsonDecode(response.body);
 
+        // if (response.statusCode == 200) {
+        //   emit(state.copyWith(isLoading: false));
+
+        //   // Điều hướng về màn hình home
+        //   router.go('/');
+
         if (response.statusCode == 200) {
+          // Create user object from response
+          final user = User.fromJson(responseData);
+
+          // Save user data to SharedPreferences
+          await AuthService.saveUserData(user);
+
           emit(state.copyWith(isLoading: false));
 
-          // Điều hướng về màn hình home
-          router.go('/');
+          // Redirect to profile screen instead of home
+          router.go('/profile');
         } else {
           emit(state.copyWith(
             isLoading: false,

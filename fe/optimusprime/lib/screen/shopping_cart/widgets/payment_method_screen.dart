@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimusprime/screen/home/models/product.dart';
 import 'package:optimusprime/services/vnpay_service.dart';
 import 'package:optimusprime/untils/format_utils.dart';
@@ -302,13 +303,12 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         );
 
         // Mở màn hình WebView để thanh toán
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => VNPayPaymentScreen(
-              paymentUrl: paymentUrl,
-              orderId: orderId,
-            ),
-          ),
+        context.push(
+          '/vnpay',
+          extra: {
+            'paymentUrl': paymentUrl,
+            'orderId': orderId,
+          },
         );
         break;
       case 2: // Chuyển khoản ngân hàng
@@ -349,8 +349,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
+              context.pop();
+              context.pop();
             },
             child: const Text('Đóng'),
           ),

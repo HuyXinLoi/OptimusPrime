@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimusprime/screen/home/models/product.dart';
 import 'package:optimusprime/screen/product_detail/bloc/product_details_bloc.dart';
 import 'package:optimusprime/screen/product_detail/bloc/product_details_event.dart';
 import 'package:optimusprime/screen/product_detail/bloc/product_details_state.dart';
 import 'package:optimusprime/screen/product_detail/models/product_detail.dart';
-import 'package:optimusprime/screen/shopping_cart/widgets/payment_method_screen.dart';
 import 'package:optimusprime/services/api_services.dart';
+import 'package:optimusprime/services/auth_service.dart';
 import 'package:optimusprime/untils/format_utils.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -388,13 +389,33 @@ class ProductDetailScreen extends StatelessWidget {
                           Icons.shopping_cart,
                           color: Colors.blue[700],
                         ),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đã thêm vào giỏ hàng'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
+                        onPressed: () async {
+                          try {
+                            final userId = await AuthService.getUserData();
+                            if (userId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Vui lòng đăng nhập'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                              return;
+                            }
+                            await ApiService().addToCart(product.id, 1);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Đã thêm vào giỏ hàng'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Lỗi: ${e.toString()}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
                       ),
                     ),
@@ -405,23 +426,31 @@ class ProductDetailScreen extends StatelessWidget {
                     child: SizedBox(
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => PaymentMethodScreen(
-                                product: Product(
-                                  id: product.id,
-                                  name: product.name,
-                                  price: product.price,
-                                  description: product.description,
-                                  quantity: product.quantity,
-                                  image: product.image,
-                                  categories: product.categories,
-                                  discount: product.discount,
-                                  createdAt: product.createdAt,
-                                  updatedAt: product.updatedAt,
-                                ),
+                        onPressed: () async {
+                          bool loggedIn = await AuthService.isLoggedIn();
+
+                          if (!loggedIn) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Vui lòng đăng nhập'),
+                                duration: Duration(seconds: 1),
                               ),
+                            );
+                            return;
+                          }
+                          context.push(
+                            '/payment',
+                            extra: Product(
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              description: product.description,
+                              quantity: product.quantity,
+                              image: product.image,
+                              categories: product.categories,
+                              discount: product.discount,
+                              createdAt: product.createdAt,
+                              updatedAt: product.updatedAt,
                             ),
                           );
                         },

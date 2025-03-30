@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:optimusprime/base/auth_redirect.dart';
 import 'package:optimusprime/screen/home/home_screen.dart';
+import 'package:optimusprime/screen/home/models/product.dart';
 import 'package:optimusprime/screen/login/login_screen.dart';
 import 'package:optimusprime/screen/navigationbar/bottom_navigationbar_screen.dart';
 import 'package:optimusprime/screen/product_detail/product_detail_screen.dart';
@@ -8,6 +10,9 @@ import 'package:optimusprime/screen/products/products_screen.dart';
 import 'package:optimusprime/screen/profile/profile_screen.dart';
 import 'package:optimusprime/screen/search/search_screen.dart';
 import 'package:optimusprime/screen/shopping_cart/shopping_cart_screen.dart';
+import 'package:optimusprime/screen/shopping_cart/widgets/order_success_screen.dart';
+import 'package:optimusprime/screen/shopping_cart/widgets/payment_method_screen.dart';
+import 'package:optimusprime/screen/shopping_cart/widgets/vnpay_payment_screen.dart';
 import 'package:optimusprime/screen/sign_in/sign_in_screen.dart';
 
 class AppRouter {
@@ -42,7 +47,7 @@ class AppRouter {
           ),
           GoRoute(
             path: '/shoppingcart',
-            builder: (context, state) => ShoppingCartScreen(),
+            builder: (context, state) => CartScreen(),
           ),
           GoRoute(
             path: '/search',
@@ -55,6 +60,38 @@ class AppRouter {
           GoRoute(
             path: '/signin',
             builder: (context, state) => SignInScreen(),
+          ),
+          GoRoute(
+            path: '/payment',
+            builder: (context, state) {
+              final product = state.extra as Product;
+              return PaymentMethodScreen(product: product);
+            },
+          ),
+          GoRoute(
+            path: '/vnpay',
+            builder: (context, state) {
+              final Map<String, dynamic> args =
+                  state.extra as Map<String, dynamic>;
+              return VNPayPaymentScreen(
+                paymentUrl: args['paymentUrl'],
+                orderId: args['orderId'],
+              );
+            },
+          ),
+          GoRoute(
+            path: '/cart',
+            builder: (context, state) => AuthRedirect(
+              redirectRoute: '/login',
+              child: const CartScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/order-success',
+            builder: (context, state) => AuthRedirect(
+              redirectRoute: '/login',
+              child: const OrderSuccessScreen(),
+            ),
           ),
         ],
       ),
