@@ -82,4 +82,41 @@ router.post("/checkout",protect, async (req, res) => {
     }
 });
 
+router.get("/:userId", protect, async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Kiểm tra nếu user yêu cầu không phải chính chủ hoặc không phải admin
+        if (req.user.id !== userId && req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied." });
+        }
+
+        const cart = await Cart.findOne({ user: userId }).populate("items.product", "name price image");
+        if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+        res.status(200).json(cart);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+// @routes GET api/cart
+// @desc Get all carts
+// @access Private (Admin only)
+router.get("/", protect, async (req, res) => {
+    try {
+        // Kiểm tra quyền Admin
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied. Admins only." });
+        }
+
+        const carts = await Cart.find().populate("user", "name email").populate("items.product", "name price");
+        res.status(200).json(carts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 module.exports = router;

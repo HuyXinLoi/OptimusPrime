@@ -64,29 +64,32 @@ router.get("/", async (req, res) => {
 // API lọc sản phẩm dựa trên name của Category, có thể sắp xếp theo price
 router.get("/filter", async (req, res) => {
     try {
-        const { value, sort } = req.query;
-
+        const { value, sort, minPrice, maxPrice } = req.query;
         let query = {};
-        
-        if (value) {
-            // Tìm category theo name
-            const category = await Category.findOne({ name: value });
 
+        // Lọc theo danh mục (Category)
+        if (value) {
+            const category = await Category.findOne({ name: value });
             if (!category) {
                 return res.status(404).json({ message: "No matching category found" });
             }
-
             query.categories = category._id;
         }
 
-        // Xây dựng điều kiện sắp xếp nếu có sort
+        // Lọc theo khoảng giá
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+        }
+
+        // Xây dựng điều kiện sắp xếp
         let sortOrder = {};
         if (sort === "asc") sortOrder.price = 1;
         if (sort === "desc") sortOrder.price = -1;
 
-        // Tìm sản phẩm theo query, có thể chỉ sắp xếp nếu không có category
-        const productQuery = Product.find(query);
-        
+        // Tìm sản phẩm theo điều kiện
+        const productQuery = Product.find(query).populate("categories");
         if (sort) {
             productQuery.sort(sortOrder);
         }
@@ -99,6 +102,7 @@ router.get("/filter", async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 });
+
 
 
 // @route   GET /api/products/:id
@@ -161,6 +165,12 @@ router.post("/add", protect, admin, upload.single("image"), async (req, res) => 
         const categoryExists = await Category.find({ _id: { $in: categoryArray } });
         if (categoryExists.length !== categoryArray.length) {
             return res.status(400).json({ message: "Một hoặc nhiều danh mục không tồn tại" });
+        }
+        const typeSet = new Set(categoryExists.map((cat) => cat.type));
+        if (typeSet.size !== categoryExists.length) {
+            return res.status(400).json({
+                message: "Danh mục không được chứa các type trùng lặp",
+            });
         }
         // Tạo sản phẩm mới với mảng categories đã loại bỏ trùng lặp
         const newProduct = new Product({
