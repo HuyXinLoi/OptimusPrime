@@ -4,7 +4,7 @@ import 'package:optimusprime/models/cart_model.dart';
 
 class CartRepository {
   final String baseUrl =
-      'http://10.0.2.2:9000/api'; // Replace with your actual API URL
+      'https://optimusprime-o8pn.onrender.com/api'; // Replace with your actual API URL
 
   Future<CartModel> getCart(String userId) async {
     final response = await http.get(

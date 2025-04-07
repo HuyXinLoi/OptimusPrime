@@ -55,7 +55,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
       try {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2:9000/api/users/login'),
+          Uri.parse('https://optimusprime-o8pn.onrender.com/api/users/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': state.email,

@@ -9,7 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://52.77.230.94:9000/api';
-  static const String baseUrl = 'http://10.0.2.2:9000/api';
+  // static const String baseUrl = 'http://10.0.2.2:9000/api';
+  static const String baseUrl = 'https://optimusprime-o8pn.onrender.com/api';
 
   Map<String, String> get headers => {
         'Content-Type': 'application/json',

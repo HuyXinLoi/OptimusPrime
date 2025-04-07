@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9000/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://optimusprime-o8pn.onrender.com/api"
 
 // Login user
 export const loginUser = async (email: string, password: string) => {

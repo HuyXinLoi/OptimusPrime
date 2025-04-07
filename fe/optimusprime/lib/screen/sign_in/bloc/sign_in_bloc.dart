@@ -45,7 +45,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       emit(state.copyWith(isLoading: true, errorMessage: null));
 
       try {
-        final url = Uri.parse("http://10.0.2.2:9000/api/users/register");
+        final url = Uri.parse(
+            "https://optimusprime-o8pn.onrender.com/api/users/register");
         final headers = {"Content-Type": "application/json"};
         final body = jsonEncode({
           "name": state.name,
