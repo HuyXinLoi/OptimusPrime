@@ -23,6 +23,7 @@ import {
 // import { useToast } from "@/components/ui/use-toast"
 import { Plus, Search, MoreHorizontal, Edit, Trash } from "lucide-react"
 import { getProducts, deleteProduct } from "@/lib/api/products"
+import { toast } from "sonner"
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([])
@@ -42,11 +43,7 @@ export default function ProductsPage() {
       setCurrentPage(response.pagination.currentPage)
     } catch (error) {
       console.error("Error fetching products:", error)
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to fetch products",
-      //   variant: "destructive",
-      // })
+      toast.error("Failed to fetch products")
     } finally {
       setIsLoading(false)
     }
@@ -66,17 +63,10 @@ export default function ProductsPage() {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         await deleteProduct(id)
-        // toast({
-        //   title: "Success",
-        //   description: "Product deleted successfully",
-        // })
+        toast.success("Product deleted successfully")
         fetchProducts(currentPage, searchQuery)
       } catch (error) {
-        // toast({
-        //   title: "Error",
-        //   description: "Failed to delete product",
-        //   variant: "destructive",
-        // })
+        toast.error("Failed to delete product")
       }
     }
   }
@@ -162,7 +152,7 @@ export default function ProductsPage() {
                                 <span className="sr-only">Open menu</span>
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="bg-white border-2 shadow-xl">
                               <DropdownMenuItem onClick={() => router.push(`/dashboard/products/edit/${product._id}`)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit
