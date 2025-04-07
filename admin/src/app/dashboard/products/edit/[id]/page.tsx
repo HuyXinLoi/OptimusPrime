@@ -6,6 +6,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { use } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,7 +15,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { getProductById, updateProduct } from "@/lib/api/products"
 import { getCategories } from "@/lib/api/categories"
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  // Unwrap the params Promise using React.use()
+  const resolvedParams = use(params)
+  const id = resolvedParams.id
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -33,7 +38,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productData, categoriesData] = await Promise.all([getProductById(params.id), getCategories()])
+        const [productData, categoriesData] = await Promise.all([getProductById(id), getCategories()])
 
         setFormData({
           name: productData.name,
@@ -54,7 +59,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     }
 
     fetchData()
-  }, [params.id])
+  }, [id])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -110,7 +115,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         formDataToSend.append("image", image)
       }
 
-      await updateProduct(params.id, formDataToSend)
+      await updateProduct(id, formDataToSend)
       router.push("/dashboard/products")
     } catch (error: any) {
       console.error("Error updating product:", error)

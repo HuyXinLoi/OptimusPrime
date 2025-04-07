@@ -158,7 +158,7 @@ class ProductCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
@@ -186,7 +186,8 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   if (product.discount > 0)
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           FormatUtils.formatCurrency(product.price),
@@ -195,8 +196,10 @@ class ProductCard extends StatelessWidget {
                             color: Colors.grey[600],
                             decoration: TextDecoration.lineThrough,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(height: 4),
                         Text(
                           FormatUtils.formatCurrency(product.discountedPrice),
                           style: TextStyle(
@@ -204,6 +207,8 @@ class ProductCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.blue[700],
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     )
@@ -214,6 +219,7 @@ class ProductCard extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue[700],
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   const SizedBox(height: 10),

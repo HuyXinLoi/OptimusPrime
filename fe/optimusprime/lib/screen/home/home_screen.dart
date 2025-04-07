@@ -351,7 +351,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SliverToBoxAdapter(
                       child: SizedBox(
-                        height: 260,
+                        height: 280,
                         child: state.status == HomeStatus.loading
                             ? const Center(
                                 child: CircularProgressIndicator(),
@@ -406,7 +406,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SliverToBoxAdapter(
                       child: SizedBox(
-                        height: 260,
+                        height: 280,
                         child: state.status == HomeStatus.loading
                             ? const Center(
                                 child: CircularProgressIndicator(),
